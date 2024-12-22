@@ -1,0 +1,1313 @@
+////////////////////////////////////////////
+;(function (packageFunction) {
+  /* istanbul ignore next */
+  var p = window.AmazonUIPageJS || window.P;
+  /* istanbul ignore next */
+  var attribute = p._namespace || p.attributeErrors;
+  /* istanbul ignore next */
+  var namespacedP = attribute ? attribute("LoganHorizonteCheckoutAssets", "") : p;
+
+  /* istanbul ignore next */
+  if (namespacedP.guardFatal) {
+    namespacedP.guardFatal(packageFunction)(namespacedP, window);
+  } else {
+    namespacedP.execute(function () {
+      packageFunction(namespacedP, window);
+    });
+  }
+}(function(P, window, undefined){
+// BEGIN ASSET LoganHorizonteCheckoutAssets - 1.0
+/////////////////////////
+// BEGIN FILE singleClickHubSelection/js/sasp/mobile.js
+/////////////////////////
+/*
+
+
+Full source (including license, if applicable) included below.
+*/
+'use strict';
+
+P.when('A',
+    'HUB_WIDGET_COMMON_HELPER',
+    'ready')
+    .execute('RECOMMENDED_ACCESS_POINT_WIDGET_ACTION_HANDLERS_SPC',
+    function (A,
+              helper) {
+
+        var $ = A.$;
+
+        // handle single click hub selection widget change to pickup button event
+        A.declarative('schs-sasp-hub-select', ['click'], function (event) {
+            try {
+                // selecting parent home address card
+                var activeBox = 'active-box';
+                var selected = event.$currentTarget.closest('div.address-book-entry');
+                if (selected.hasClass(activeBox)) {
+                    // deselect home address radio
+                    var homeAddressRadio = $('div.address-book-entry.active-box input[name=\'ignore-addressID\']');
+                    homeAddressRadio.attr('checked', false);
+
+                    var recommendedAccessPointRadio = $('div.address-book-entry.active-box input[name="schs-sasp-radio"]');
+                    recommendedAccessPointRadio.attr('checked', true);
+
+                    // hide address book actions div
+                    var addressBookActionsDiv = $('div.address-book-entry.active-box .address-book-actions').children()
+                        .not('.ap-sasp-dest-schs-loading-message')
+                        .not('.ap-sasp-dest-schs-upsell')
+                        .not('.ap-sasp-dest-fallback-upsell');
+
+                    addressBookActionsDiv.each(function () {
+                        $(this).hide();
+                    });
+
+                    // manipulating single click hub selection divs
+                    var locationDetails = $('div.address-book-entry.active-box .schs-sasp-location-details');
+                    var locationDetailsExpanded = $('div.address-book-entry.active-box .schs-sasp-location-details-expanded');
+                    var pickupLocationCta = $('div.address-book-entry.active-box .schs-sasp-cta');
+                    var changeToPickup = $('div.address-book-entry.active-box .schs-sasp-change-to-pickup');
+                    var locationCardDivider = $('div.address-book-entry.active-box .schs-sasp-card-divider');
+                    var locationRadioButton = $('div.address-book-entry.active-box .schs-sasp-radio-button');
+                    var amazonHubIcon = $('div.address-book-entry.active-box .schs-sasp-amazon-hub-icon');
+
+                    locationDetails.hide();
+                    locationDetailsExpanded.show();
+                    pickupLocationCta.show();
+                    changeToPickup.hide();
+                    amazonHubIcon.hide();
+                    locationCardDivider.show();
+                    locationRadioButton.show();
+                }
+            } catch(err) {
+                helper.logFatal(err, 'RECOMMENDED_ACCESS_POINT_WIDGET_ACTION_HANDLERS_SPC');
+            }
+        });
+
+        // handle home address card radio button event for div manipulation
+        A.declarative('mobile-select-address', ['change'], function (event) {
+            try {
+                var selectedRadio = $('div.address-book-entry input[name=\'schs-sasp-radio\']:checked');
+                var parentAddressCard = selectedRadio.closest('div.address-book-entry');
+
+                // show address book actions div
+                var addressBookActionsDiv = parentAddressCard.find('.address-book-actions').children()
+                    .not('.ap-sasp-dest-schs-loading-message')
+                    .not('.ap-sasp-dest-schs-upsell')
+                    .not('.ap-sasp-dest-fallback-upsell');
+                addressBookActionsDiv.each(function () {
+                    $(this).show();
+                });
+
+                // manipulating single click hub selection divs
+                var locationDetails = parentAddressCard.find('.schs-sasp-location-details');
+                var locationDetailsExpanded = parentAddressCard.find('.schs-sasp-location-details-expanded');
+                var pickupLocationCta = parentAddressCard.find('.schs-sasp-cta');
+                var locationCardDivider = parentAddressCard.find('.schs-sasp-card-divider');
+                var locationRadioButton = $('div.address-book-entry.active-box .schs-sasp-radio-button');
+                var changeToPickup = parentAddressCard.find('.schs-sasp-change-to-pickup');
+                var amazonHubIcon = parentAddressCard.find('.schs-sasp-amazon-hub-icon');
+
+                locationDetails.show();
+                locationDetailsExpanded.hide();
+                pickupLocationCta.hide();
+                changeToPickup.show();
+                locationCardDivider.hide();
+                locationRadioButton.hide();
+                amazonHubIcon.show();
+                selectedRadio.attr('checked', false);
+            } catch(err) {
+                helper.logFatal(err, 'RECOMMENDED_ACCESS_POINT_WIDGET_ACTION_HANDLERS_SPC');
+            }
+        });
+});
+/////////////////////////
+// END FILE singleClickHubSelection/js/sasp/mobile.js
+/////////////////////////
+/////////////////////////
+// BEGIN FILE singleClickHubSelection/js/recommendedAccessPointWidget/recommendedAccessPointDivData.js
+/////////////////////////
+/*
+
+
+Full source (including license, if applicable) included below.
+*/
+'use strict';
+
+(function ($Nav, P) {
+    /*
+     * Execute only on pages with AUI support
+     */
+    var isAuiP = typeof window.P  === "object" &&
+        typeof window.P.when      === "function" &&
+        typeof window.P.register  === "function" &&
+        typeof window.P.execute   === "function";
+
+    if (!isAuiP) {
+        return;
+    }
+
+    P.when('A',
+        'HUB_WIDGET_COMMON_HELPER',
+        'checkout-general-utils',
+        'ready')
+        .register('RECOMMENDED_ACCESS_POINT_WIDGET_DIV_DATA',
+        function (A,
+                  helper,
+                  utils) {
+
+            function getRecommendedAccessPointDivData() {
+                try {
+                    var recommendedAccessPointDiv;
+                    var dataHelperAttribute;
+                    var recommendedAccessPointLoadingMessageDiv;
+                    var fallbackUpsellDiv;
+                    var recommendedPickupLocationWidgetLoaderUrl;
+                    var pageType;
+                    var isTangoRequest = 'false';
+
+                    var recommendedAccessPointLoadingMessageSASPDiv = A.$('.active-box .ap-sasp-dest-schs-loading-message');
+                    var recommendedAccessPointLoadingMessageSPCDiv = A.$('#ap-spc-dest-schs-loading-message');
+                    var recommendedAccessPointLoadingMessageTSPCDiv = A.$('#ap-tspc-dest-schs-loading-message');
+
+                    if (recommendedAccessPointLoadingMessageSASPDiv.length > 0) {
+                        dataHelperAttribute = A.$('.active-box .ap-sasp-dest-schs-loading-message').attr("data-helper");
+                        recommendedAccessPointLoadingMessageDiv = A.$('.active-box .ap-sasp-dest-schs-loading-message');
+                        fallbackUpsellDiv = A.$('.active-box .ap-sasp-dest-fallback-upsell');
+                        recommendedAccessPointDiv = A.$('.active-box .ap-sasp-dest-schs-upsell');
+                        pageType = 'SASP';
+                    } else if (recommendedAccessPointLoadingMessageSPCDiv.length > 0) {
+                        dataHelperAttribute = A.$('#ap-spc-dest-schs-loading-message').attr("data-helper");
+                        recommendedAccessPointLoadingMessageDiv = A.$('#ap-spc-dest-schs-loading-message');
+                        fallbackUpsellDiv = A.$('#ap-spc-dest-fallback-upsell');
+                        recommendedAccessPointDiv = A.$('#ap-spc-dest-schs-upsell');
+                        pageType = 'SPC';
+                    } else if(recommendedAccessPointLoadingMessageTSPCDiv.length > 0) {
+                        dataHelperAttribute = A.$('#ap-tspc-dest-schs-loading-message').attr("data-helper");
+                        recommendedAccessPointLoadingMessageDiv = A.$('#ap-tspc-dest-schs-loading-message');
+                        fallbackUpsellDiv = A.$('#ap-tspc-dest-fallback-upsell');
+                        recommendedAccessPointDiv = A.$('#ap-tspc-dest-schs-upsell');
+                        pageType = 'TSPC';
+                    }
+
+                    if (dataHelperAttribute !== undefined && dataHelperAttribute !== false) {
+                        var dataHelper = JSON.parse(dataHelperAttribute);
+                        recommendedPickupLocationWidgetLoaderUrl = dataHelper['recommendedPickupLocationWidgetLoaderUrl'];
+                        var tangoRequestValue = utils.getQueryStringParameter(recommendedPickupLocationWidgetLoaderUrl, 'isTangoRequest');
+                        isTangoRequest = tangoRequestValue === undefined ? 'false' : tangoRequestValue;
+                    }
+
+                    var divData = {
+                        "recommendedAccessPointDiv": recommendedAccessPointDiv,
+                        "recommendedAccessPointLoadingMessageDiv": recommendedAccessPointLoadingMessageDiv,
+                        "fallbackUpsellDiv": fallbackUpsellDiv,
+                        "recommendedPickupLocationWidgetLoaderUrl": recommendedPickupLocationWidgetLoaderUrl,
+                        "pageType": pageType,
+                        "isTangoRequest": isTangoRequest
+                    };
+                } catch (err) {
+                    helper.logFatal(err, 'RECOMMENDED_ACCESS_POINT_WIDGET_DIV_DATA', dataHelperAttribute);
+                }
+
+                return divData;
+            }
+
+            return {
+                getRecommendedAccessPointDivData : getRecommendedAccessPointDivData
+            };
+    });
+}(window.$Nav, P));
+/////////////////////////
+// END FILE singleClickHubSelection/js/recommendedAccessPointWidget/recommendedAccessPointDivData.js
+/////////////////////////
+/////////////////////////
+// BEGIN FILE singleClickHubSelection/js/recommendedAccessPointWidget/fetchRecommendedAccessPointWidget.js
+/////////////////////////
+/*
+
+
+Full source (including license, if applicable) included below.
+*/
+'use strict';
+
+(function ($Nav, P) {
+    /*
+     * Execute only on pages with AUI support
+     */
+    var isAuiP = typeof window.P  === "object" &&
+        typeof window.P.when      === "function" &&
+        typeof window.P.register  === "function" &&
+        typeof window.P.execute   === "function";
+
+    if (!isAuiP) {
+        return;
+    }
+
+    P.when('A',
+        'HUB_WIDGET_COMMON_HELPER',
+        'ready')
+        .register('RECOMMENDED_ACCESS_POINT_WIDGET',
+        function (A,
+                  helper) {
+
+            function render(recommendedAccessPointDivData, isDefaultLoad) {
+                var recommendedAccessPointDiv = recommendedAccessPointDivData['recommendedAccessPointDiv'];
+                var recommendedAccessPointLoadingMessageDiv = recommendedAccessPointDivData['recommendedAccessPointLoadingMessageDiv'];
+                var fallbackUpsellDiv = recommendedAccessPointDivData['fallbackUpsellDiv'];
+                var recommendedPickupLocationWidgetLoaderUrl = recommendedAccessPointDivData['recommendedPickupLocationWidgetLoaderUrl'];
+                var pageType = recommendedAccessPointDivData['pageType'];
+                var isTangoRequest = recommendedAccessPointDivData['isTangoRequest'];
+
+                var scopeName = 'oneclickhubselection';
+                if (window.ue && window.uet) {
+                    window.uet('bb', scopeName, {wb: 1});
+                }
+
+                A.$.ajax({
+                    url: recommendedPickupLocationWidgetLoaderUrl,
+                    timeout: 5000,
+                    success: function (result, status, xhr) {
+                        if (window.ue && window.uet) {
+                            window.uet('be', scopeName, {wb: 1});
+                        }
+                        try {
+                            recommendedAccessPointLoadingMessageDiv.addClass("aok-hidden");
+                            if (xhr.status == 200) {
+                                recommendedAccessPointDiv
+                                    .html(result)
+                                    .removeClass("aok-hidden");
+                                incrementMetricCountWithTangoMetric('OneClickHubSelection:RecommendedUpsell:' + pageType + ':Shown', isTangoRequest);
+                            } else {
+                                fallbackUpsellDiv
+                                    .removeClass("aok-hidden");
+                                incrementMetricCountWithTangoMetric('OneClickHubSelection:FallbackUpsell:' + pageType + ':Shown', isTangoRequest);
+                            }
+
+                            if(isDefaultLoad) {
+                                A.trigger('ready-to-be-observed');
+                            }
+                            window.sessionStorage.setItem('shouldMutationEventCallLogan', 'true');
+                        } catch (err) {
+                            helper.logFatal(err, 'RECOMMENDED_ACCESS_POINT_WIDGET', recommendedAccessPointDivData);
+                        }
+                        if (window.ue && window.uex) {
+                            window.uex('ld', scopeName, {wb: 1});
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        if (window.ue && window.uet) {
+                            window.uet('be', scopeName, {wb: 1});
+                        }
+                        try {
+                            recommendedAccessPointLoadingMessageDiv
+                                .addClass("aok-hidden");
+                            fallbackUpsellDiv
+                                .removeClass("aok-hidden");
+                            incrementMetricCountWithTangoMetric('OneClickHubSelection:FallbackUpsell:' + pageType + ':Shown', isTangoRequest);
+                            incrementMetricCountWithTangoMetric('OneClickHubSelection:Ajax:' + pageType + ':Failure', isTangoRequest);
+
+                            if(isDefaultLoad) {
+                                A.trigger('ready-to-be-observed');
+                            }
+                            window.sessionStorage.setItem('shouldMutationEventCallLogan', 'true');
+                        } catch (err) {
+                            helper.logFatal(err, 'RECOMMENDED_ACCESS_POINT_WIDGET', recommendedAccessPointDivData);
+                        }
+                        if (window.ue && window.uex) {
+                            window.uex('ld', scopeName, {wb: 1});
+                        }
+                    }
+                });
+            }
+
+        return {
+            render: render
+        };
+
+        /**
+         * Function to fetch current count for a metric along with tango metric, increment it by
+         * one and then update it
+         * @param metricName - name of the metric
+         * @param isTangoRequest - tells whether tango request or not
+         */
+        function incrementMetricCountWithTangoMetric(metricName, isTangoRequest) {
+            helper.incrementMetricCount(metricName)
+            helper.incrementMetricCount(metricName + ':isTangoRequest:' + isTangoRequest);
+        }
+
+    });
+}(window.$Nav, P));
+/////////////////////////
+// END FILE singleClickHubSelection/js/recommendedAccessPointWidget/fetchRecommendedAccessPointWidget.js
+/////////////////////////
+/////////////////////////
+// BEGIN FILE singleClickHubSelection/js/recommendedAccessPointWidget/recommendedAccessPointWidgetOnMutation.js
+/////////////////////////
+/*
+
+
+Full source (including license, if applicable) included below.
+*/
+'use strict';
+
+(function ($Nav, P) {
+    /*
+     * Execute only on pages with AUI support
+     */
+    var isAuiP = typeof window.P  === "object" &&
+        typeof window.P.when      === "function" &&
+        typeof window.P.register  === "function" &&
+        typeof window.P.execute   === "function";
+
+    if (!isAuiP) {
+        return;
+    }
+
+    P.when('A',
+        'RECOMMENDED_ACCESS_POINT_WIDGET',
+        'RECOMMENDED_ACCESS_POINT_WIDGET_DIV_DATA',
+        'HUB_WIDGET_COMMON_HELPER',
+        'ready')
+        .register('RECOMMENDED_ACCESS_POINT_WIDGET_ON_MUTATION',
+        function (A,
+                  recommendedAccessPointWidgetService,
+                  recommendedAccessPointDivData,
+                  helper) {
+
+            function getMutationObserver() {
+                var observer;
+                try {
+                    MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
+                    if(MutationObserver === undefined) {
+                        helper.incrementMetricCount('OneClickHubSelection:MutationObserver:Unsupported');
+                        return observer;
+                    }
+                    observer = new MutationObserver(function (mutations, observer) {
+
+                        var divData = recommendedAccessPointDivData.getRecommendedAccessPointDivData();
+
+                        if (divData['recommendedAccessPointDiv'] !== undefined
+                            && divData['recommendedAccessPointLoadingMessageDiv'] !== undefined
+                            && divData['fallbackUpsellDiv'] !== undefined
+                            && divData['recommendedPickupLocationWidgetLoaderUrl'] !== undefined) {
+
+                            if(window.sessionStorage.getItem('shouldMutationEventCallLogan') == null) {
+                                window.sessionStorage.setItem('shouldMutationEventCallLogan', 'true');
+                            }
+
+                            if (!divData['recommendedAccessPointLoadingMessageDiv'].hasClass("aok-hidden") &&
+                                window.sessionStorage.getItem('shouldMutationEventCallLogan') === 'true') {
+                                window.sessionStorage.setItem('shouldMutationEventCallLogan', false);
+                                recommendedAccessPointWidgetService.render(divData,/* isDefaultLoad=*/ false);
+                            }
+                        }
+                    });
+                } catch (err) {
+                    helper.logFatal(err, 'RECOMMENDED_ACCESS_POINT_WIDGET_ON_MUTATION');
+                }
+
+                return observer;
+            }
+
+            return {
+                getMutationObserver : getMutationObserver
+            };
+    });
+
+}(window.$Nav, P));
+/////////////////////////
+// END FILE singleClickHubSelection/js/recommendedAccessPointWidget/recommendedAccessPointWidgetOnMutation.js
+/////////////////////////
+/////////////////////////
+// BEGIN FILE singleClickHubSelection/js/recommendedAccessPointWidget/main.js
+/////////////////////////
+/*
+
+
+Full source (including license, if applicable) included below.
+*/
+'use strict';
+
+(function ($Nav, P) {
+    /*
+     * Execute only on pages with AUI support
+     */
+    var isAuiP = typeof window.P  === "object" &&
+        typeof window.P.when      === "function" &&
+        typeof window.P.register  === "function" &&
+        typeof window.P.execute   === "function";
+
+    if (!isAuiP) {
+        return;
+    }
+
+    P.when('A',
+        'RECOMMENDED_ACCESS_POINT_WIDGET_DIV_DATA',
+        'RECOMMENDED_ACCESS_POINT_WIDGET',
+        'RECOMMENDED_ACCESS_POINT_WIDGET_ON_MUTATION',
+        'HUB_WIDGET_COMMON_HELPER',
+        'ready')
+        .execute('RECOMMENDED_ACCESS_POINT_WIDGET_MAIN',
+        function (A,
+                  recommendedAccessPointDefaultLoadDivData,
+                  recommendedAccessPointWidget,
+                  mutationObserver,
+                  helper) {
+            try {
+                var divData = recommendedAccessPointDefaultLoadDivData.getRecommendedAccessPointDivData();
+
+                if(divData['recommendedAccessPointDiv'] !== undefined
+                    && divData['recommendedAccessPointLoadingMessageDiv'] !== undefined
+                    && divData['fallbackUpsellDiv'] !== undefined
+                    && divData['recommendedPickupLocationWidgetLoaderUrl'] !== undefined) {
+                    recommendedAccessPointWidget.render(divData,/* isDefaultLoad= */ true);
+                } else {
+                    var mutationObserverObject = mutationObserver.getMutationObserver();
+                    if(mutationObserverObject !== undefined) {
+                        mutationObserverObject.observe(document, {
+                            subtree: true,
+                            attributes: true
+                        });
+                    }
+                }
+            } catch(err) {
+                helper.logFatal(err, 'RECOMMENDED_ACCESS_POINT_WIDGET_MAIN', divData);
+            }
+        });
+
+    P.when('A',
+        'RECOMMENDED_ACCESS_POINT_WIDGET_ON_MUTATION',
+        'HUB_WIDGET_COMMON_HELPER',
+        'ready')
+        .execute('RECOMMENDED_ACCESS_POINT_WIDGET_MAIN_MUTATION',
+        function (A,
+                  mutationObserver,
+                  helper) {
+            try {
+                A.on('ready-to-be-observed', function () {
+                    var mutationObserverObject = mutationObserver.getMutationObserver();
+                    if(mutationObserverObject !== undefined) {
+                        mutationObserverObject.observe(document, {
+                            subtree: true,
+                            attributes: true
+                        });
+                    }
+                });
+            } catch (err) {
+                helper.logFatal(err, 'RECOMMENDED_ACCESS_POINT_WIDGET_MAIN_MUTATION');
+            }
+    });
+
+}(window.$Nav, P));
+/////////////////////////
+// END FILE singleClickHubSelection/js/recommendedAccessPointWidget/main.js
+/////////////////////////
+/////////////////////////
+// BEGIN FILE singleClickHubSelection/js/csmMetrics.js
+/////////////////////////
+/*
+
+
+Full source (including license, if applicable) included below.
+*/
+'use strict';
+
+P.when("A", "ready").execute('RecommendedPickupLocationWidgetMetrics', function(A) {
+    var $ = A.$;
+
+    /*
+     * Function to fetch current count for a metric, increment it by one and then update it
+     */
+    function incrementMetricCount(metricName) {
+        if (window.ue && typeof window.ue.count === 'function') {
+            window.ue.count(metricName, (window.ue.count(metricName) || 0) + 1);
+        }
+    }
+
+    /*
+     * Increment counter each time the pickup here button is clicked on SPC, SPC Tango, TSPC and SASP page
+     */
+
+    $("[data-csa-c-content-id=ap-mobile-schs-change-to-pickup-spc]").live("click", function(){
+        incrementMetricCount("OneClickHubSelection:PickupHere:SPC:Click");
+    });
+
+    $("[data-csa-c-content-id=ap-mobile-schs-pickup-here-spc-tango]").live("click", function(){
+        incrementMetricCount("OneClickHubSelection:PickupHere:SPC:Tango:Click");
+    });
+
+    $("[data-csa-c-content-id=ap-desktop-schs-change-to-pickup-tspc]").live("click", function(){
+        incrementMetricCount("OneClickHubSelection:PickupHere:TSPC:Click");
+    });
+
+    $("[data-csa-c-content-id=ap-mobile-schs-change-to-pickup-sasp]").live("click", function(){
+        incrementMetricCount("OneClickHubSelection:PickupHere:SASP:Click");
+    });
+
+    /*
+     * Increment counter each time Deliver to this address button is clicked on SASP page
+     */
+
+    $("[data-csa-c-content-id=ap-mobile-schs-cta-sasp]").live("click", function(){
+        incrementMetricCount("OneClickHubSelection:DeliverToThisAddress:Click");
+    });
+
+    /*
+     * Increment counter each time location selector link is clicked on SPC, SPC Tango, TSPC and SASP pages
+     */
+
+    $("[data-csa-c-content-id=ap-mobile-schs-ls-spc]").live("click", function(){
+        incrementMetricCount("OneClickHubSelection:LocationSelector:SPC:Click");
+    });
+
+    $("[data-csa-c-content-id=ap-mobile-schs-ls-spc-tango]").live("click", function(){
+        incrementMetricCount("OneClickHubSelection:LocationSelector:SPC:Tango:Click");
+    });
+
+    $("[data-csa-c-content-id=ap-desktop-schs-ls-tspc]").live("click", function(){
+        incrementMetricCount("OneClickHubSelection:LocationSelector:TSPC:Click");
+    });
+
+    $("[data-csa-c-content-id=ap-mobile-schs-ls-sasp]").live("click", function(){
+        incrementMetricCount("OneClickHubSelection:LocationSelector:SASP:Click");
+    });
+
+
+});
+/////////////////////////
+// END FILE singleClickHubSelection/js/csmMetrics.js
+/////////////////////////
+/////////////////////////
+// BEGIN FILE singleClickHubSelection/js/constants.js
+/////////////////////////
+/*
+
+
+Full source (including license, if applicable) included below.
+*/
+"use strict";
+
+P.declare("RECOMMENDED_ACCESS_POINT_WIDGET_CONSTANTS", {
+    MapAttributes : {
+        BING_MAPS_CONTROL_URL: "https://sdk.virtualearth.net/api/maps/mapcontrol",
+        MAP_ZOOM: 15,
+        MAP_SLA_MIN: 1,
+        MAP_SLA_MAX: 16,
+        MAP_ANCHOR_X: 12,
+        MAP_ANCHOR_Y: 28
+    },
+});
+/////////////////////////
+// END FILE singleClickHubSelection/js/constants.js
+/////////////////////////
+/////////////////////////
+// BEGIN FILE singleClickHubSelection/js/bingMapHelper.js
+/////////////////////////
+/*
+
+
+Full source (including license, if applicable) included below.
+*/
+"use strict";
+
+(function ($Nav, P) {
+    /*
+     * Execute only on pages with AUI support
+     */
+    var isAuiP = typeof window.P  === "object" &&
+        typeof window.P.when      === "function" &&
+        typeof window.P.register  === "function" &&
+        typeof window.P.execute   === "function";
+
+    if (!isAuiP) {
+        return;
+    }
+
+    P.when("A",
+        "RECOMMENDED_ACCESS_POINT_WIDGET_CONSTANTS",
+        "HUB_WIDGET_COMMON_HELPER",
+        "ready")
+        .register("RECOMMENDED_ACCESS_POINT_WIDGET_BING_MAP_HELPER",
+            function (A, SCHSConstants, helper) {
+
+                function downloadBingMap() {
+                    try {
+                        var bingMapURL = SCHSConstants.MapAttributes.BING_MAPS_CONTROL_URL;
+                        var bingElement = document.createElement("script");
+                        bingElement.type = "text/javascript";
+                        bingElement.src = bingMapURL;
+                        bingElement.defer = true;
+                        document.body.appendChild(bingElement);
+                    } catch (err) {
+                        helper.logFatal(err, "LOAD_BING_MAP_JS");
+                    }
+                }
+
+                 /**
+                  * This function is responsible to render Map on bottomsheet
+                  * @param mapElement  divId for map element in jsp
+                  * @param latitude    latitude of recommended access point
+                  * @param longitude   longitude of recommended access point
+                  * @param mapMinSLA   minimum SLA to load map at start
+                  * @param bingMapKey  access key for map
+                  * @param mapIcon     bingMap Icon
+                  * @param mapAddressLabel addresslable to show over map pushpin
+                  * @param mapFailureMessage map failure message when bingMap JS fails to load
+                  * */
+
+                 function renderMapLayer (mapElement, latitude, longitude, mapMinSLA, bingMapKey, mapIcon, mapAddressLabel, mapFailureMessage) {
+                     try {
+                         if (mapMinSLA === SCHSConstants.MapAttributes.MAP_SLA_MAX) {
+                             mapElement.innerHTML = mapFailureMessage;
+                             return;
+                         }
+
+                         if (window.Microsoft && window.Microsoft.Maps) {
+                             var showBingMap = new Microsoft.Maps.Map(mapElement, {
+                                 credentials: bingMapKey,
+                                 center: new Microsoft.Maps.Location(latitude, longitude),
+                                 zoom: SCHSConstants.MapAttributes.MAP_ZOOM,
+                                 showLocateMeButton: false,
+                                 showMapTypeSelector: false,
+                                 showZoomButtons: false,
+                                 disableScrollWheelZoom: true,
+                                 });
+
+                                 // Create Pushpin and attach it to store Latitude and Longitude
+                             var pushPinLoc = new Microsoft.Maps.Location(latitude, longitude);
+                             var base64Image = mapIcon;
+                             var pin = new Microsoft.Maps.Pushpin(pushPinLoc, {
+                                 icon: base64Image,
+                                 title: mapAddressLabel,
+                                 anchor: new Microsoft.Maps.Point(SCHSConstants.MapAttributes.MAP_ANCHOR_X, SCHSConstants.MapAttributes.MAP_ANCHOR_Y),
+                                 });
+
+                             showBingMap.entities.push(pin);  // Add the pushpin to the map
+                             } else {
+                                 setTimeout(function(){renderMapLayer(mapElement, latitude, longitude, mapMinSLA*2,
+                                     bingMapKey, mapIcon, mapAddressLabel, mapFailureMessage)}, 1000*mapMinSLA);
+                             }
+                         } catch (err) {
+                             helper.logFatal(err, "RECOMMENDED_ACCESS_POINT_WIDGET_BING_MAP_HELPER");
+                         }
+                 }
+                return {
+                    downloadBingMap: downloadBingMap,
+                    renderMapLayer: renderMapLayer
+                };
+            });
+}(window.$Nav, P));
+/////////////////////////
+// END FILE singleClickHubSelection/js/bingMapHelper.js
+/////////////////////////
+/////////////////////////
+// BEGIN FILE singleClickHubSelection/js/bottomsheetDetails/mobileBottomsheet.js
+/////////////////////////
+/*
+
+
+Full source (including license, if applicable) included below.
+*/
+// empty file for treatment C of APCX_RECOMMENDED_HUB_UPSELL_BOTTOMSHEET_ASSETS_568642 weblab.
+/////////////////////////
+// END FILE singleClickHubSelection/js/bottomsheetDetails/mobileBottomsheet.js
+/////////////////////////
+/////////////////////////
+// BEGIN FILE helper.js
+/////////////////////////
+/*
+
+
+Full source (including license, if applicable) included below.
+*/
+'use strict';
+
+(function ($Nav, P) {
+    /*
+     * Execute only on pages with AUI support
+     */
+    var isAuiP = typeof window.P  === "object" &&
+        typeof window.P.when      === "function" &&
+        typeof window.P.register  === "function" &&
+        typeof window.P.execute   === "function";
+
+    if (!isAuiP) {
+        return;
+    }
+
+    P.when('A',
+        'ready')
+        .register('HUB_WIDGET_COMMON_HELPER',
+            function (A) {
+
+                /**
+                 * Description: Function to fetch current count for a metric, increment it by one and then update it
+                 *
+                 * @param metricName
+                 */
+                function incrementMetricCount(metricName) {
+                    if (window.ue && typeof window.ue.count === 'function') {
+                        window.ue.count(metricName, (window.ue.count(metricName) || 0) + 1);
+                    }
+                }
+
+                /**
+                 * Description: Function to to emit JS fatal.
+                 *
+                 * @param error
+                 * @param attribution
+                 * @param data
+                 */
+                function logFatal(error, attribution, data) {
+                    if (window.ueLogError) {
+                        var msg = data || error.message;
+
+                        var additionalInfo = {
+                            logLevel : 'FATAL',
+                            attribution : "LoganHorizonteCheckoutAssets:".concat(attribution),
+                            message : msg
+                        };
+
+                        window.ueLogError(error, additionalInfo);
+                    }
+                }
+
+                return {
+                    incrementMetricCount: incrementMetricCount,
+                    logFatal: logFatal
+                };
+            });
+}(window.$Nav, P));
+/////////////////////////
+// END FILE helper.js
+/////////////////////////
+/////////////////////////
+// BEGIN FILE addressSelectionFeature/js/greyoutGracefulRecoveryWidget/constants.js
+/////////////////////////
+/*
+
+
+Full source (including license, if applicable) included below.
+*/
+"use strict";
+
+P.register('HUB_GREYOUT_GRACEFUL_RECOVERY_WIDGET_CONSTANTS', function () {
+    return {
+        TSPC_ELEMENT_IDS : {
+            PARENT: {
+                GR_GREYOUT_HUB_LOCATION: "hub_ggr_widget_",
+                GR_FREE_DELIVERY: "hub_ggr_nongreyed_recovery_"
+            },
+            PLACEHOLDER: {
+                GR_GREYOUT_HUB_LOCATION: "hub_ggr_recovery_",
+                GR_FREE_DELIVERY: "hub_ggr_nongreyed_placeholder_msg_"
+            },
+            ERROR_REASON: {
+                GR_GREYOUT_HUB_LOCATION: "hub_ggr_greyed_recovery_error_reason_",
+                GR_FREE_DELIVERY: "hub_ggr_nongreyed_recovery_error_reason_"
+            },
+            RECOVERY_LINK: {
+                GR_GREYOUT_HUB_LOCATION: "hub_ggr_recovery_link_",
+                GR_FREE_DELIVERY: "hub_ggr_recovery_link_"
+            },
+            RECOVERY_AP_DISTANCE: {
+                GR_GREYOUT_HUB_LOCATION: "hub_ggr_recovery_ap_distance_",
+                GR_FREE_DELIVERY: "hub_ggr_recovery_ap_distance_"
+            }
+        },
+        MOBILE_ELEMENT_IDS : {
+            PARENT: {
+                GR_GREYOUT_HUB_LOCATION: "hub_ggr_widget_",
+                GR_FREE_DELIVERY: "hub_ggr_nongreyed_recovery_"
+            },
+            PLACEHOLDER: {
+                GR_GREYOUT_HUB_LOCATION: "hub_ggr_recovery_",
+                GR_FREE_DELIVERY: "hub_ggr_nongreyed_placeholder_msg_"
+            },
+            ERROR_REASON: {
+                GR_GREYOUT_HUB_LOCATION: "hub_ggr_failure_msg_",
+                GR_FREE_DELIVERY: "hub_ggr_nongreyed_recovery_error_reason_"
+            },
+            RECOVERY_LINK: {
+                GR_GREYOUT_HUB_LOCATION: "hub_ggr_recovery_link_",
+                GR_FREE_DELIVERY: "hub_ggr_recovery_link_"
+            },
+            RECOVERY_AP_DISTANCE: {
+                GR_GREYOUT_HUB_LOCATION: "hub_ggr_recovery_ap_distance_",
+                GR_FREE_DELIVERY: "hub_ggr_recovery_ap_distance_"
+            }
+        },
+        TSPC_METRIC_PREFIX : "HubGracefulRecovery:TSPC:",
+        MOBILE_METRIC_PREFIX: "HubGracefulRecovery:Mobile:",
+        AUI_HIDDEN: 'aok-hidden',
+        // Indicates the Graceful Recovery in case of greyed out hub location, also serves as index in Constants
+        GR_GREYOUT_HUB_LOCATION: "GR_GREYOUT_HUB_LOCATION",
+        // Indicates the Graceful Recovery in case of Free delivery use case, also serves as index in Constants
+        GR_FREE_DELIVERY: "GR_FREE_DELIVERY",
+    }
+})
+/////////////////////////
+// END FILE addressSelectionFeature/js/greyoutGracefulRecoveryWidget/constants.js
+/////////////////////////
+/////////////////////////
+// BEGIN FILE addressSelectionFeature/js/greyoutGracefulRecoveryWidget/fetchRecoveryWidget.js
+/////////////////////////
+/*
+
+
+Full source (including license, if applicable) included below.
+*/
+"use strict";
+
+(function ($Nav, P) {
+    /*
+     * Execute only on pages with AUI support
+     */
+    var isAuiP = typeof window.P  === "object" &&
+        typeof window.P.when      === "function" &&
+        typeof window.P.register  === "function" &&
+        typeof window.P.execute   === "function";
+
+    if (!isAuiP) {
+        return;
+    }
+
+    P.when('A', 'HUB_GREYOUT_GRACEFUL_RECOVERY_WIDGET_CONSTANTS', 'HUB_WIDGET_COMMON_HELPER').register('GREYOUT_GR_WIDGET_HELPER' , function (A, CONSTANTS, helper) {
+        var $ = A.$;
+
+        function fetchRecoveryWidget(remoteURL, destinationId, GR_USECASE, handleAJAXSuccess, handleAJAXFailure) {
+            A.ajax(remoteURL, {
+                method: 'get',
+                dataType: 'json',
+                contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+                success: function (response) {
+                    handleAJAXSuccess(response, destinationId, GR_USECASE);
+                },
+                error: function () {
+                    handleAJAXFailure(destinationId, GR_USECASE);
+                },
+                timeout: 5000,
+                traditional: true
+            });
+        }
+
+        function hidePlaceholderElement(placeholderElementId) {
+            $('#' + placeholderElementId).addClass(CONSTANTS.AUI_HIDDEN);
+        }
+
+        function setDistanceInRecoveryLink(loganResponse, METRIC_PREFIX, handleAJAXFailure, destinationId, GR_USECASE, distanceElementId) {
+            // Extract AP Distance to display in the GR Link
+            var accessPointDistanceFromLogan = $(loganResponse).find("#AP_distance")[0];
+            if (!accessPointDistanceFromLogan) {
+                helper.incrementMetricCount(METRIC_PREFIX + "Distance:NoKeyFound");
+                handleAJAXFailure(destinationId, GR_USECASE);
+                return false;
+            }
+            // The access point distance from logan is in "0.2 mi away" format. We only need "0.2 mi"
+            var accessPointDistance = (accessPointDistanceFromLogan.innerHTML.trim()).split(/\s+/).slice(0, 2).join(' ');
+            $('#' + distanceElementId).text(accessPointDistance);
+            return true;
+        }
+
+        function handleGracefulRecovery(ELEMENT_IDS, METRIC_PREFIX, handleAJAXSuccess, handleAJAXFailure) {
+            $('.hub_ggr_widget').each(function(index, grWidgetElement) {
+                try {
+                    var grWidget = $(grWidgetElement);
+                    var destinationId = grWidget.data().destinationid;
+                    var widgetId = grWidget.attr('id');
+                    var grUseCase;
+                    if(widgetId === (ELEMENT_IDS.PARENT[CONSTANTS.GR_GREYOUT_HUB_LOCATION] + destinationId)) {
+                        grUseCase = CONSTANTS.GR_GREYOUT_HUB_LOCATION;
+                    } else if(widgetId === (ELEMENT_IDS.PARENT[CONSTANTS.GR_FREE_DELIVERY] + destinationId)) {
+                        grUseCase = CONSTANTS.GR_FREE_DELIVERY;
+                    }
+                    if (grUseCase == null) {
+                        helper.incrementMetricCount(METRIC_PREFIX + "InvalidData:WidgetId");
+                        return;
+                    }
+                    var grData = $('#' + ELEMENT_IDS.PLACEHOLDER[grUseCase] + destinationId).data();
+                    if (!grData || !grData.url) {
+                        helper.incrementMetricCount(METRIC_PREFIX + "InvalidData:GRData");
+                        return;
+                    }
+                    var remoteURL = grData.url;
+                    fetchRecoveryWidget(remoteURL, destinationId, grUseCase, handleAJAXSuccess, handleAJAXFailure);
+
+                } catch (err) {
+                    helper.incrementMetricCount(METRIC_PREFIX + "Widget:Error");
+                }
+            });
+        }
+
+        return {
+            fetchRecoveryWidget: fetchRecoveryWidget,
+            hidePlaceholderElement: hidePlaceholderElement,
+            setDistanceInRecoveryLink: setDistanceInRecoveryLink,
+            handleGracefulRecovery: handleGracefulRecovery
+        }
+    })
+
+}(window.$Nav, P));
+/////////////////////////
+// END FILE addressSelectionFeature/js/greyoutGracefulRecoveryWidget/fetchRecoveryWidget.js
+/////////////////////////
+/////////////////////////
+// BEGIN FILE addressSelectionFeature/js/greyoutGracefulRecoveryWidget/main.js
+/////////////////////////
+/*
+
+
+Full source (including license, if applicable) included below.
+*/
+"use strict";
+
+(function ($Nav, P) {
+    /*
+     * Execute only on pages with AUI support
+     */
+    var isAuiP = typeof window.P === "object" &&
+        typeof window.P.when === "function" &&
+        typeof window.P.execute === "function";
+
+    if (!isAuiP) {
+        return;
+    }
+    P.when('A','a-popover-base', 'GREYOUT_GR_WIDGET_HELPER', 'HUB_GREYOUT_GRACEFUL_RECOVERY_WIDGET_CONSTANTS', 'HUB_WIDGET_COMMON_HELPER', 'ready')
+        .execute(function (A, popover, grWidgetHelper, CONSTANTS, helper) {
+
+        var $ = A.$;
+
+        var ELEMENT_IDS = CONSTANTS.TSPC_ELEMENT_IDS;
+
+        A.on.load(handleGracefulRecovery);
+        A.on('checkout:reload', handleGracefulRecovery);
+
+        function handleGracefulRecovery() {
+            try {
+                grWidgetHelper.handleGracefulRecovery(ELEMENT_IDS, CONSTANTS.TSPC_METRIC_PREFIX, handleAJAXSuccess, handleAJAXFailure)
+            } catch (err) {
+                helper.logFatal(err, "HUB_GREYOUT_GRACEFUL_TSPC");
+            }
+        }
+
+        function handleAJAXSuccess(response, destinationId, GR_USECASE) {
+            var loganResponse = "<div>" + response + "</div>";
+
+            var destinationOwnerIdDiv = $(loganResponse).find("#destinationOwnerId")[0];
+            if (destinationOwnerIdDiv) {
+                var storeChainOwnerId = destinationOwnerIdDiv.innerHTML.trim();
+                helper.incrementMetricCount(CONSTANTS.TSPC_METRIC_PREFIX + "HubSuggestion:" + storeChainOwnerId);
+            }
+
+            // Set the distance in recovery link
+            var distanceElementId = ELEMENT_IDS.RECOVERY_AP_DISTANCE[GR_USECASE] + destinationId;
+            var isDistanceSet = grWidgetHelper.setDistanceInRecoveryLink(loganResponse, CONSTANTS.TSPC_METRIC_PREFIX, handleAJAXFailure,
+                destinationId, GR_USECASE, distanceElementId);
+            if (!isDistanceSet) return;
+
+            grWidgetHelper.hidePlaceholderElement(ELEMENT_IDS.PLACEHOLDER[GR_USECASE] + destinationId);
+
+            if (GR_USECASE === CONSTANTS.GR_FREE_DELIVERY) {
+                var freeShippingStatus = $(loganResponse).find("#queryAPFreeShippingStatus")[0];
+                if (!freeShippingStatus) {
+                    helper.incrementMetricCount(CONSTANTS.TSPC_METRIC_PREFIX + "SavedAccessPointAddress:FreeShipping:NoKeyFound");
+                    handleAJAXFailure(destinationId, GR_USECASE);
+                    return;
+                }
+                if (freeShippingStatus.innerHTML.includes("true")) {
+                    helper.incrementMetricCount(CONSTANTS.TSPC_METRIC_PREFIX + "SavedAccessPointAddress:FreeShipping:Available");
+                    $('#hub_ggr_nongreyed_success_' + destinationId).removeClass(CONSTANTS.AUI_HIDDEN);
+
+                    var recoveryPopoverElement = $('#' + ELEMENT_IDS.RECOVERY_LINK[GR_USECASE] + destinationId).parent();
+                    recoveryPopoverElement.addClass(CONSTANTS.AUI_HIDDEN);
+                    return;
+                } else {
+                    helper.incrementMetricCount(CONSTANTS.TSPC_METRIC_PREFIX + "SavedAccessPointAddress:FreeShipping:Unavailable");
+                    $('#' + ELEMENT_IDS.ERROR_REASON[GR_USECASE] + destinationId).removeClass(CONSTANTS.AUI_HIDDEN);
+                }
+            } else {
+
+                // For Greyout use case, update trigger text if FREE shipping is available at alternative AP.
+
+                var isFreeShipOptionAvailable = $(loganResponse).find("#isFreeSOAvailable")[0];
+                if (isFreeShipOptionAvailable && isFreeShipOptionAvailable.innerHTML.includes("true")) {
+                    $('#hub_ggr_trigger_text_free_' + destinationId).removeClass(CONSTANTS.AUI_HIDDEN);
+                    $('#hub_ggr_trigger_text_' + destinationId).addClass(CONSTANTS.AUI_HIDDEN);
+                } else {
+                    $('#hub_ggr_trigger_text_free_' + destinationId).addClass(CONSTANTS.AUI_HIDDEN);
+                    $('#hub_ggr_trigger_text_' + destinationId).removeClass(CONSTANTS.AUI_HIDDEN);
+                }
+            }
+
+            var recoveryPopover = $('#' + ELEMENT_IDS.RECOVERY_LINK[GR_USECASE] + destinationId).parent();
+            if (!recoveryPopover) {
+                helper.incrementMetricCount(CONSTANTS.TSPC_METRIC_PREFIX + "Popover:Failure");
+                handleAJAXFailure(destinationId, GR_USECASE);
+                return;
+            }
+            recoveryPopover.attr("data-a-modal",
+                JSON.stringify({name: "hub_ggr_modal", content:loganResponse, width:800, padding:"none"}));
+
+            //Show the recovery Link
+            $('#' + ELEMENT_IDS.RECOVERY_LINK[GR_USECASE] + destinationId).removeClass(CONSTANTS.AUI_HIDDEN);
+
+            helper.incrementMetricCount(CONSTANTS.TSPC_METRIC_PREFIX + "HubSuggestion:Success");
+        }
+
+        function handleAJAXFailure(destinationId, GR_USECASE) {
+            helper.incrementMetricCount(CONSTANTS.TSPC_METRIC_PREFIX + "HubSuggestion:Failure");
+            $('#' + ELEMENT_IDS.PLACEHOLDER[GR_USECASE] + destinationId).addClass(CONSTANTS.AUI_HIDDEN);
+            $('#' + ELEMENT_IDS.ERROR_REASON[GR_USECASE] + destinationId).removeClass(CONSTANTS.AUI_HIDDEN);
+        }
+
+        // The gr_popover_close action is declared on 'Deliver to this address' button in TSPC GR popover body
+        // generated by the LoganHZ service. This event is generated when customer clicks on 'Deliver to this address'
+        A.declarative("gr_popover_close", "click", function(event) {
+            popover.hide("hub_ggr_modal");
+        });
+    });
+
+}(window.$Nav, P));
+/////////////////////////
+// END FILE addressSelectionFeature/js/greyoutGracefulRecoveryWidget/main.js
+/////////////////////////
+/////////////////////////
+// BEGIN FILE addressSelectionFeature/js/accessibilityWidget/hubAccessibilityHelper.js
+/////////////////////////
+/*
+
+
+Full source (including license, if applicable) included below.
+*/
+"use strict";
+
+(function ($Nav, P) {
+    /*
+     * Execute only on pages with AUI support
+     */
+    var isAuiP = typeof window.P  === "object" &&
+        typeof window.P.when      === "function" &&
+        typeof window.P.register  === "function" &&
+        typeof window.P.execute   === "function";
+
+    if (!isAuiP) {
+        return;
+    }
+
+    P.when('A').register('HUB_ACCESSIBILITY_WIDGET_HELPER', function (A) {
+
+        function fetchAccessibilityWidget(url, event, handleAjaxSuccess, handleAjaxFailure) {
+            A.ajax(url, {
+                method: 'get',
+                dataType: 'json',
+                contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+
+                success: function (response) {
+                    handleAjaxSuccess(response, event);
+                },
+                error: function () {
+                    handleAjaxFailure(event);
+                },
+                timeout: 5000,
+                traditional: true
+            });
+        }
+
+        return {
+            fetchAccessibilityWidget : fetchAccessibilityWidget
+        }
+    })
+
+}(window.$Nav, P));
+/////////////////////////
+// END FILE addressSelectionFeature/js/accessibilityWidget/hubAccessibilityHelper.js
+/////////////////////////
+/////////////////////////
+// BEGIN FILE addressSelectionFeature/js/accessibilityWidget/constants.js
+/////////////////////////
+/*
+
+
+Full source (including license, if applicable) included below.
+*/
+"use strict";
+
+P.register('HUB_ACCESSIBILITY_WIDGET_CONSTANTS', function () {
+    return {
+        TSPC_METRIC_PREFIX : "HubAccessibility:TSPC:",
+        TSPC_TANGO_DESKTOP_METRIC_PREFIX : "HubAccessibility:TSPCTangoDesktop:",
+        MOBILE_METRIC_PREFIX: "HubAccessibility:Mobile:",
+        AUI_HIDDEN: 'aok-hidden',
+        MOBILE_ELEMENT_IDS: {
+            BOTTOM_SHEET_CONTENT : "hub_accessibility_bottom_sheet_content_",
+            BOTTOM_SHEET_FAIL : "hub_accessibility_bottom_sheet_fail_",
+            BOTTOM_SHEET_SCROLLER : "hub_accessibility_bottom_sheet_",
+            BOTTOM_SHEET_NAME: "hub_accessibility_bottom_sheet"
+        },
+        DESKTOP_ELEMENT_IDS: {
+            MODAL_FAIL : "ap-accessibility-modal-fail",
+            MODAL_NAME: "ap-accessibility-modal"
+        }
+    }
+})
+/////////////////////////
+// END FILE addressSelectionFeature/js/accessibilityWidget/constants.js
+/////////////////////////
+/////////////////////////
+// BEGIN FILE addressSelectionFeature/js/accessibilityWidget/main.js
+/////////////////////////
+/*
+
+
+Full source (including license, if applicable) included below.
+*/
+'use strict';
+
+/**
+ * This JS file contains action listeners for Hub Accessibility Widget for TSPC.
+ * It does following things
+ * 1. Close Modal when Cancel button in modal is clicked.
+ * 2. Refresh page when lower locker preference is toggled.
+ */
+(function ($Nav, P) {
+    /*
+     * Execute only on pages with AUI support
+     */
+    var isAuiP = typeof window.P  === "object" &&
+        typeof window.P.when      === "function" &&
+        typeof window.P.execute   === "function";
+
+    if (!isAuiP) {
+        return;
+    }
+
+    P.when('A','a-popover', 'a-modal', 'page-conductor', 'HUB_WIDGET_COMMON_HELPER', 'checkout-general-utils', 'HUB_ACCESSIBILITY_WIDGET_CONSTANTS', 'HUB_ACCESSIBILITY_WIDGET_HELPER', 'ready')
+        .execute('HUB_ACCESSIBILITY_TSPC_WIDGET', function(A, popover, modal, pageConductor, helper, utils, CONSTANTS, hubAccessibilityHelper) {
+
+        var METRIC_PREFIX = CONSTANTS.TSPC_METRIC_PREFIX;
+        var TSPC_TANGO_DESKTOP_METRIC_PREFIX = CONSTANTS.TSPC_TANGO_DESKTOP_METRIC_PREFIX;
+        var ELEMENT_IDS = CONSTANTS.DESKTOP_ELEMENT_IDS;
+
+        try {
+            var $ = A.$;
+            A.declarative('ap-accessibility-modal-details', ['click'], function(event){
+                if (!event.data) return;
+                var url = event.data.url || '';
+                var isCLTCXEnabled = event.data.isCLTCXEnabled || false;
+                var purchaseId = event.data.purchaseId || '';
+                url = utils.addQueryStringParameter(decodeURIComponent(url), "purchaseId", purchaseId);
+                url = utils.addQueryStringParameter(decodeURIComponent(url), "isTangoRequest", isCLTCXEnabled);
+
+                hubAccessibilityHelper.fetchAccessibilityWidget(url, event, handleAjaxSuccess, handleAjaxFailure);
+            });
+
+            function handleAjaxSuccess(response, event) {
+                helper.incrementMetricCount(TSPC_TANGO_DESKTOP_METRIC_PREFIX + "fetchWidget:Success");
+                var modalInstance = createModal(response, event);
+                modalInstance.show();
+            }
+
+            function handleAjaxFailure() {
+                helper.incrementMetricCount(TSPC_TANGO_DESKTOP_METRIC_PREFIX + "fetchWidget:Failure");
+                $('#' + ELEMENT_IDS.MODAL_FAIL).removeClass(CONSTANTS.AUI_HIDDEN);
+            }
+
+            function createModal(response, event) {
+                var modalCreateParams = {
+                    name : ELEMENT_IDS.MODAL_NAME,
+                    inlineContent : response,
+                    closeButton : true,
+                    width : 550,
+                    header : event.data.header
+                }
+                return modal.create(event.$target, modalCreateParams);
+            }
+
+            function hideModal() {
+                if(popover) {
+                    popover.remove("hub-accessibility-modal");
+                }
+                if(modal) {
+                    modal.remove("ap-accessibility-modal");
+                }
+            }
+
+            function refreshPage() {
+                pageConductor.reloadPage();
+            }
+
+            A.declarative('llp-popover-close', ['click'], function() {
+                hideModal();
+            })
+
+            // If Ajax request to set preference succeeds
+            A.on('vaw-toggle-preference-success', function(){
+                helper.incrementMetricCount(METRIC_PREFIX + "setPreference:Success");
+                refreshPage();
+            });
+            A.on('vaw-toggle-preference-success-tango', function(){
+                helper.incrementMetricCount(TSPC_TANGO_DESKTOP_METRIC_PREFIX + "setPreference:Success");
+            });
+
+            // If Ajax request to set preference fails
+            A.on("vaw-toggle-preference-error", function () {
+                helper.incrementMetricCount(METRIC_PREFIX + "setPreference:Failure");
+                refreshPage();
+            });
+            A.on("vaw-toggle-preference-error-tango", function () {
+                helper.incrementMetricCount(TSPC_TANGO_DESKTOP_METRIC_PREFIX + "setPreference:Failure");
+            });
+        }
+        catch (err) {
+            helper.logFatal(err, 'HUB_ACCESSIBILITY_TSPC_WIDGET');
+        }
+    });
+
+}(window.$Nav, P));
+/////////////////////////
+// END FILE addressSelectionFeature/js/accessibilityWidget/main.js
+/////////////////////////
+/////////////////////////
+// BEGIN FILE common/js/hubSetDestinationHelper.js
+/////////////////////////
+/*
+
+
+Full source (including license, if applicable) included below.
+*/
+"use strict";
+
+(function ($Nav, P) {
+    /*
+     * Execute only on pages with AUI support
+     */
+    var isAuiP = typeof window.P  === "object" &&
+        typeof window.P.when      === "function" &&
+        typeof window.P.register  === "function" &&
+        typeof window.P.execute   === "function";
+
+    if (!isAuiP) {
+        return;
+    }
+
+    P.when('A',
+        'jQuery',
+        'page-conductor',
+        'HUB_WIDGET_COMMON_HELPER')
+        .execute('HUB_SET_DESTINATION_HELPER',
+        function (A, $, pageConductor, helper) {
+            try {
+                $(document).delegate('.hub-set-destination-continue-link a', 'click', function(event) {
+                    pageConductor.continueClicked(event);
+                });
+            } catch (err) {
+                helper.logFatal(err, 'HUB_SET_DESTINATION_HELPER');
+            }
+        });
+
+}(window.$Nav, P));
+/////////////////////////
+// END FILE common/js/hubSetDestinationHelper.js
+/////////////////////////
+
+// END ASSET LoganHorizonteCheckoutAssets - 1.0
+}));
+////////////////////////////////////////////
